@@ -95,3 +95,14 @@ def main_parsing_task():
         logger.warning("Данные не были получены")
         return []
 
+# Запуск парсера
+if __name__ == "__main__":
+    results = main_parsing_task()
+    if results:
+        print(f"Парсинг завершён. Обработано {len(results)} товаров.")
+        print("\nПервые 3 товара:")
+        for i, product in enumerate(results[:3], 1):
+            print(f"{i}. {product['title']} - {product['price']}")
+    else:
+        print("Парсинг не удался.")
+        
