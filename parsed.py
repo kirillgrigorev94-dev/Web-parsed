@@ -34,7 +34,7 @@ def basic_parser(url):
 def extract_data(soup):
     items = []
     products = soup.find_all('div', class_='product-item')
-    logger.info(f"Найдено {len{products}} товаров на странице")
+    logger.info(f"Найдено {len(products)} товаров на странице")
     for product in products:
         try:
             title_elem = product.find('h3', class_='title')
