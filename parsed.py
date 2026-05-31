@@ -11,6 +11,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Функция базового парсера
+
 def basic_parser(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -27,3 +29,27 @@ def basic_parser(url):
     except requests.RequestException as e:
         logger.error(f"Ошибка запроса для {url}: {e}")
         return None
+    
+# Функция извлечения данных
+def extract_data(soup):
+    items = []
+    products = soup.find_all('div', class_='product-item')
+    logger.info(f"Найдено {len{products}} товаров на странице")
+    for product in products:
+        try:
+            title_elem = product.find('h3', class_='title')
+            price_elem = product.find('span', class_='price')
+            desc_elem = product.find('p', class_='description')
+            title = title_elem.text.strip() if title_elem else 'Нет названия'
+            price = price_elem.text.strip() if price_elem else 'Цена не указана'
+            description = desc_elem.text.strip() if desc_elem else 'Нет описания'
+            item = {
+                'title': title,
+                'price': price,
+                'description': description
+            }
+            items.append(item)
+        except Exception as e:
+            logger.warning(f"Ошибка при обработке товара: {e}")
+            continue
+    return items
