@@ -34,20 +34,20 @@ def basic_parser(url):
 
 def extract_data(soup):
     items = []
-    products = soup.find_all('div', class_='product-item')
-    logger.info(f"Найдено {len(products)} товаров на странице")
-    for product in products:
+    quotes = soup.find_all('div', class_='quote')
+    logger.info(f"Найдено {len(quotes)} цитат на странице")
+    for quote in quotes:
         try:
-            title_elem = product.find('h3', class_='title')
-            price_elem = product.find('span', class_='price')
-            desc_elem = product.find('p', class_='description')
-            title = title_elem.text.strip() if title_elem else 'Нет названия'
-            price = price_elem.text.strip() if price_elem else 'Цена не указана'
-            description = desc_elem.text.strip() if desc_elem else 'Нет описания'
+            text_elem = quote.find('span', class_='text')
+            author_elem = quote.find('small', class_='author')
+            tags_elem = quote.find('a', class_='tag')
+            text = text_elem.text.strip() if text_elem else 'Нет текста'
+            author = author_elem.text.strip() if author_elem else 'Неизвестный автор'
+            tags = ', '.join([tag.text.strip() for tag in tags_elem]) if tags_elem else 'Нет тегов'
             item = {
-                'title': title,
-                'price': price,
-                'description': description
+                'text': text,
+                'author': author,
+                'tags': tags
             }
             items.append(item)
         except Exception as e:
@@ -59,17 +59,25 @@ def extract_data(soup):
 
 def parse_multiple_pages(base_url, max_pages=5):
     all_data = []
+    current_url = base_url
     for page in range(1, max_pages + 1):
-        url = f"{base_url}?page={page}"
-        logger.info(f"Обрабатывается страница {page}: {url}")
-        soup = basic_parser(url)
+        logger.info(f"Обрабатывается страница {page}: {current_url}")
+        soup = basic_parser(current_url)
         if soup:
             data = extract_data(soup)
             all_data.extend(data)
-            logger.info(f"Страница {page} обработана, {len(data)} товаров")
+            logger.info(f"Страница {page} обработана, {len(data)} цитат")
+            next_btn = soup.find('li', class_='next')
+            if next_btn and next_btn.find('a'):
+                next_url = next_btn.find('a')['href']
+                current_url = f"https://quotes.toscrape.com{next_url}"
+            else:
+                logger.info("Больше страниц нет, завершаем парсинг")
+                break
             time.sleep(1)
         else:
             logger.warning(f"Не удалось получить страницу {page}")
+            break
     return all_data
 
 # Функция сохранения данных
@@ -83,13 +91,13 @@ def save_to_excel(data, filename='parsed_data.xlsx'):
 
 def main_parsing_task():
     logger.info("Начало процесса парсинга")
-    base_url = "https://sml.shop.megafon.ru/"
+    base_url = "https://quotes.toscrape.com/"
     all_data = parse_multiple_pages(base_url, max_pages=3)
     if all_data:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        filename_excel = f"products_{timestamp}.xlsx"
+        filename_excel = f"quotes_{timestamp}.xlsx"
         save_to_excel(all_data, filename_excel)
-        logger.info(f"Всего обработанно товаров: {len(all_data)}")
+        logger.info(f"Всего обработанно цитат: {len(all_data)}")
         return all_data
     else:
         logger.warning("Данные не были получены")
@@ -99,10 +107,20 @@ def main_parsing_task():
 if __name__ == "__main__":
     results = main_parsing_task()
     if results:
-        print(f"Парсинг завершён. Обработано {len(results)} товаров.")
-        print("\nПервые 3 товара:")
-        for i, product in enumerate(results[:3], 1):
-            print(f"{i}. {product['title']} - {product['price']}")
+        print(f"Парсинг завершён. Обработано {len(results)} цитат.")
+        print("\nПервые 3 цитаты:")
+        for i, quote in enumerate(results[:3], 1):
+            print(f"{i}. {quote['text']} - {quote['author']}")
     else:
         print("Парсинг не удался.")
         
+# soup = basic_parser("https://quotes.toscrape.com/")
+# print(soup.title.text if soup else "Не удалось получить страницу")
+
+# data = extract_data(soup)
+# print(f"Извлечено товаров: {len(data)}")
+
+# all_data = parse_multiple_pages("https://quotes.toscrape.com/", max_pages=2)
+# print(f"Всего товаров: {len(all_data)}")
+
+# save_to_excel(all_data, "test.excel")
