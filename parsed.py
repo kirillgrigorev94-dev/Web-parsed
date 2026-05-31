@@ -79,3 +79,19 @@ def save_to_excel(data, filename='parsed_data.xlsx'):
     df.to_excel(filename, index=False)
     logger.info(f"Данные сохранены в Excel: {filename}")
     
+# Основная функция запуска
+
+def main_parsing_task():
+    logger.info("Начало процесса парсинга")
+    base_url = "https://sml.shop.megafon.ru/"
+    all_data = parse_multiple_pages(base_url, max_pages=3)
+    if all_data:
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        filename_excel = f"products_{timestamp}.xlsx"
+        save_to_excel(all_data, filename_excel)
+        logger.info(f"Всего обработанно товаров: {len(all_data)}")
+        return all_data
+    else:
+        logger.warning("Данные не были получены")
+        return []
+
