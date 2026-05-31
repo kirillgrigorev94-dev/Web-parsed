@@ -31,6 +31,7 @@ def basic_parser(url):
         return None
     
 # Функция извлечения данных
+
 def extract_data(soup):
     items = []
     products = soup.find_all('div', class_='product-item')
@@ -55,6 +56,7 @@ def extract_data(soup):
     return items
 
 # Функция работы с пагинацией
+
 def parse_multiple_pages(base_url, max_pages=5):
     all_data = []
     for page in range(1, max_pages + 1):
@@ -70,3 +72,10 @@ def parse_multiple_pages(base_url, max_pages=5):
             logger.warning(f"Не удалось получить страницу {page}")
     return all_data
 
+# Функция сохранения данных
+
+def save_to_excel(data, filename='parsed_data.xlsx'):
+    df = pd.DataFrame(data)
+    df.to_excel(filename, index=False)
+    logger.info(f"Данные сохранены в Excel: {filename}")
+    
