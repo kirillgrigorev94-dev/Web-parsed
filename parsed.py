@@ -118,9 +118,9 @@ if __name__ == "__main__":
 # print(soup.title.text if soup else "Не удалось получить страницу")
 
 # data = extract_data(soup)
-# print(f"Извлечено товаров: {len(data)}")
+# print(f"Извлечено цитат: {len(data)}")
 
 # all_data = parse_multiple_pages("https://quotes.toscrape.com/", max_pages=2)
-# print(f"Всего товаров: {len(all_data)}")
+# print(f"Всего цитат: {len(all_data)}")
 
 # save_to_excel(all_data, "test.excel")
